@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# usage: silentpcmrm [-d] [-v] [-l] [-t THRESHOLD] INPUT
+
+#	-d	debug mode: actions are listed but not carried out
+#	-v	verbose mode: actions are carried out and listed
+#	-l	list mode: files that will be deleted are listed, surrounded by single quotes. This allows the list to sent to `xargs` for example, to open in an audio editor to double check if there's anything worth keeping.
+#	-t THRESHOLD	set the threshold below which a PCM file is considered silent
+#	INPUT	list of files to check for silence
+
+red=$(tput setaf 1);
+green=$(tput setaf 2);
+yellow=$(tput setaf 3);
+reset=$(tput setaf 9);
+
+max=0.0001;
+while getopts ":dlm:v" opt; do
+	case $opt in
+		d) debug=yes;;
+		l) list=yes;;
+		m) max=$OPTARG;;
+		v) verbose=yes;;
+		\?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+		:) echo "Option -$OPTARG needs an argument" >&2; exit 1;;
+	esac
+done
+shift $(( OPTIND - 1 ))
+# alert debug mode
+if [ "${debug}" == 'yes' ]; then
+	echo "${green}debug mode";
+fi
+# set print mode
+if [[ "${verbose}" == 'yes' || "${debug}" == 'yes' ]]; then
+	print=yes;
+fi
+# print threshold
+if [ "${print}" == 'yes' ]; then
+	echo "${green}using ${yellow}${max}${green} as threshold below which a file is considered 'silent'${reset}"; echo;
+fi
+for i in "${@}"; do
+	# print file name
+	if [ "${print}" == 'yes' ]; then
+		echo "${yellow}$i${reset}";
+	fi
+	# check for zero length file
+	if [ ! -s "${i}" ]; then
+		if [ "${print}" = 'yes' ]; then
+			echo "  ${yellow}${i}${reset} is ${blue}zero-length${reset}";
+		fi
+		if [ "${debug}" == 'yes' ]; then
+			echo "  ${green}debug mode: ${red}rm -f ${i}${reset}";
+		else
+			rm -f "${i}";
+		fi
+	else
+		# read amplitude of file
+		amplitude=$(sox "${i}" -n stat 2>&1 | grep "Maximum amplitude" | cut -d ":" -f 2 | sed 's/ //g');
+		# print amplitude
+		if [ "${print}" == 'yes' ]; then
+			echo "  ${i} --> ${amplitude}";
+		fi
+		# check if amplitude is below threshold
+		if [[ $(echo "if (${amplitude} > ${max}) 1 else 0" | bc) -eq 0 ]]; then
+			if [ "${debug}" == 'yes' ]; then
+				# debug mode
+				echo "  ${green}debug mode: ${red}rm -f ${i}${reset}";
+			elif [ "${list}" == 'yes' ]; then
+				# list mode
+				echo "'${i}'";
+			else
+				if [ "${verbose}" == 'yes' ]; then
+					echo "  ${red}Deleting ${i}${reset}";
+				fi
+				rm -f "${i}";
+			fi
+		fi
+	fi
+done
