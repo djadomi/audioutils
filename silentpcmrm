@@ -13,12 +13,12 @@ green=$(tput setaf 2);
 yellow=$(tput setaf 3);
 reset=$(tput setaf 9);
 
-max=0.0001;
-while getopts ":dlm:v" opt; do
+threshold=0.0001;
+while getopts ":dlt:v" opt; do
 	case $opt in
 		d) debug=yes;;
 		l) list=yes;;
-		m) max=$OPTARG;;
+		t) threshold=$OPTARG;;
 		v) verbose=yes;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
 		:) echo "Option -$OPTARG needs an argument" >&2; exit 1;;
@@ -35,7 +35,7 @@ if [[ "${verbose}" == 'yes' || "${debug}" == 'yes' ]]; then
 fi
 # print threshold
 if [ "${print}" == 'yes' ]; then
-	echo "${green}using ${yellow}${max}${green} as threshold below which a file is considered 'silent'${reset}"; echo;
+	echo "${green}using ${yellow}${threshold}${green} as threshold below which a file is considered 'silent'${reset}"; echo;
 fi
 for i in "${@}"; do
 	# print file name
@@ -60,7 +60,7 @@ for i in "${@}"; do
 			echo "  ${i} --> ${amplitude}";
 		fi
 		# check if amplitude is below threshold
-		if [[ $(echo "if (${amplitude} > ${max}) 1 else 0" | bc) -eq 0 ]]; then
+		if [[ $(echo "if (${amplitude} > ${threshold}) 1 else 0" | bc) -eq 0 ]]; then
 			if [ "${debug}" == 'yes' ]; then
 				# debug mode
 				echo "  ${green}debug mode: ${red}rm -f ${i}${reset}";
