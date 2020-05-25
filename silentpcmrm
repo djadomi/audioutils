@@ -63,7 +63,8 @@ for i in "${@}"; do
 		if [[ $(echo "if (${amplitude} > ${threshold}) 1 else 0" | bc) -eq 0 ]]; then
 			if [ "${debug}" == 'yes' ]; then
 				# debug mode
-				echo "  ${green}debug mode: ${red}rm -f ${i}${reset}";
+				echo -n "  ${green}debug mode: ${red}rm -f ${i}${reset} ";
+				echo [${yellow} $(du -h "${i}" | cut -f1) ${reset}];
 			elif [ "${list}" == 'yes' ]; then
 				# list mode
 				echo "'${i}'";
