@@ -8,10 +8,16 @@
 #	-t THRESHOLD	set the threshold below which a PCM file is considered silent
 #	INPUT	list of files to check for silence
 
-red=$(tput setaf 1);
+bold=$(tput bold)
 green=$(tput setaf 2);
+grey=$(tput dim)$(tput setaf 7)
+lblack=$(tput bold)$(tput setaf 0)
+lred=$(tput bold)$(tput setaf 1)
+red=$(tput setaf 1);
+reset=$(tput sgr0);
+white=$(tput setaf 7)
 yellow=$(tput setaf 3);
-reset=$(tput setaf 9);
+cols=$(tput cols)
 
 threshold=0.0001;
 while getopts ":dlt:v" opt; do
@@ -36,11 +42,14 @@ fi
 # print threshold
 if [ "${print}" == 'yes' ]; then
 	echo "${green}using ${yellow}${threshold}${green} as threshold below which a file is considered 'silent'${reset}"; echo;
+	padlimit=${cols};
+	pad=$(printf '%*s' "$padlimit");
+	pad=${pad// /.};
 fi
 for i in "${@}"; do
 	# print file name
 	if [ "${print}" == 'yes' ]; then
-		echo "${yellow}$i${reset}";
+		echo -n "${i} ";
 	fi
 	# check for zero length file
 	if [ ! -s "${i}" ]; then
@@ -48,23 +57,24 @@ for i in "${@}"; do
 			echo "  ${yellow}${i}${reset} is ${blue}zero-length${reset}";
 		fi
 		if [ "${debug}" == 'yes' ]; then
-			echo "  ${green}debug mode: ${red}rm -f ${i}${reset}";
+			echo "  ${green}debug mode: ${red}remove ${i}${reset}";
 		else
 			rm -f "${i}";
 		fi
 	else
 		# read amplitude of file
 		amplitude=$(sox "${i}" -n stat 2>&1 | grep "Maximum amplitude" | cut -d ":" -f 2 | sed 's/ //g');
-		# print amplitude
-		if [ "${print}" == 'yes' ]; then
-			echo "  ${i} : ${amplitude}";
-		fi
 		# check if amplitude is below threshold
 		if [[ $(echo "if (${amplitude} > ${threshold}) 1 else 0" | bc) -eq 0 ]]; then
+			# print amplitude
+			if [ "${print}" == 'yes' ]; then
+				amp="${reset}Max amplitude: ${red}${amplitude}${reset}";
+				printf '%*.*s%s\n' 0 $(( ${cols} - ${#i} - ${#amp} )) "${lblack}${pad}${reset}" " ${reset}${amp}";
+			fi
 			if [ "${debug}" == 'yes' ]; then
 				# debug mode
-				echo -n "  ${green}debug mode: ${red}rm -f ${i}${reset} ";
-				echo [${yellow} $(du -h "${i}" | cut -f1) ${reset}];
+				printf '%s' "  ${green}debug mode: ${red}remove ${bold}${white}${i}${reset} ";
+				printf '%s\n' "[${yellow} $(du -h "${i}" | cut -f1) ${reset}]";
 			elif [ "${list}" == 'yes' ]; then
 				# list mode
 				echo "'${i}'";
@@ -73,6 +83,12 @@ for i in "${@}"; do
 					echo "  ${red}Deleting ${i}${reset}";
 				fi
 				rm -f "${i}";
+			fi
+		else
+			# print amplitude
+			if [ "${print}" == 'yes' ]; then
+				amp="${reset}Max amplitude: ${green}${amplitude}${reset}";
+				printf '%*.*s%s\n' 0 $(( ${cols} - ${#i} - ${#amp} )) "${lblack}${pad}${reset}" " ${amp}";
 			fi
 		fi
 	fi
