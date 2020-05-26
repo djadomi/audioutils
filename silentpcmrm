@@ -80,7 +80,7 @@ for i in "${@}"; do
 				echo "'${i}'";
 			else
 				if [ "${verbose}" == 'yes' ]; then
-					echo "  ${red}Deleting ${i}${reset}";
+					echo "  ${red}Deleting ${bold}${white}${i}${reset}";
 				fi
 				rm -f "${i}";
 			fi
