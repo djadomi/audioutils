@@ -51,7 +51,7 @@ fi
 for i in "${@}"; do
 	# print file name
 	if [ "${print}" == 'yes' ]; then
-		echo -n "${i} ";
+		printf '%s' "${i}";
 	fi
 	# check for zero length file
 	if [ ! -s "${i}" ]; then
@@ -71,7 +71,7 @@ for i in "${@}"; do
 			# print amplitude
 			if [ "${print}" == 'yes' ]; then
 				amp="${reset}Max amplitude: ${red}${amplitude}${reset}";
-				printf '%*.*s%s\n' 0 $(( ${cols} - ${#i} - ${#amp} )) "${lblack}${pad}${reset}" " ${reset}${amp}";
+				printf ' %*.*s%s\n' 0 $(( ${cols} - ${#i} - ${#amp} - 2 + ${#reset} * 5 )) "${lblack}${pad}${reset}" " ${reset}${amp}";
 			fi
 			if [ "${debug}" == 'yes' ]; then
 				# debug mode
@@ -90,7 +90,7 @@ for i in "${@}"; do
 			# print amplitude
 			if [ "${print}" == 'yes' ]; then
 				amp="${reset}Max amplitude: ${green}${amplitude}${reset}";
-				printf '%*.*s%s\n' 0 $(( ${cols} - ${#i} - ${#amp} )) "${lblack}${pad}${reset}" " ${amp}";
+				printf ' %*.*s %s\n' 0 $(( ${cols} - ${#i} - ${#amp} - 2 + ${#reset} * 5 )) "${lblack}${pad}${reset}" "${amp}";
 			fi
 		fi
 	fi
