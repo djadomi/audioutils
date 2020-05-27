@@ -8,22 +8,13 @@
 #	-t THRESHOLD	set the threshold below which a PCM file is considered silent
 #	INPUT	list of files to check for silence
 
-bold=$(tput bold)
-green=$(tput setaf 2);
-grey=$(tput dim)$(tput setaf 7)
-lblack=$(tput bold)$(tput setaf 0)
-lred=$(tput bold)$(tput setaf 1)
-red=$(tput setaf 1);
-reset=$(tput sgr0);
-white=$(tput setaf 7)
-yellow=$(tput setaf 3);
 cols=$(tput cols)
-
 threshold=0.0001;
-while getopts ":dlt:v" opt; do
+while getopts ":dlnt:v" opt; do
 	case $opt in
 		d) debug=yes;;
 		l) list=yes;;
+		n) nocolours=yes;;
 		t) threshold=$OPTARG;;
 		v) verbose=yes;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
@@ -31,6 +22,17 @@ while getopts ":dlt:v" opt; do
 	esac
 done
 shift $(( OPTIND - 1 ))
+if [ "${nocolours}" != 'yes' ]; then
+	bold=$(tput bold)
+	green=$(tput setaf 2);
+	grey=$(tput dim)$(tput setaf 7)
+	lblack=$(tput bold)$(tput setaf 0)
+	lred=$(tput bold)$(tput setaf 1)
+	red=$(tput setaf 1);
+	reset=$(tput sgr0);
+	white=$(tput setaf 7)
+	yellow=$(tput setaf 3);
+fi
 # alert debug mode
 if [ "${debug}" == 'yes' ]; then
 	echo "${green}debug mode";
