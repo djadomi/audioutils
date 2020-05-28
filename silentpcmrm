@@ -5,6 +5,7 @@
 #	-d	debug mode: actions are listed but not carried out
 #	-v	verbose mode: actions are carried out and listed
 #	-l	list mode: files that will be deleted are listed, surrounded by single quotes. This allows the list to sent to `xargs` for example, to open in an audio editor to double check if there's anything worth keeping.
+#	-n	no colours: don't use colours when printing to the screen
 #	-t THRESHOLD	set the threshold below which a PCM file is considered silent
 #	INPUT	list of files to check for silence
 
