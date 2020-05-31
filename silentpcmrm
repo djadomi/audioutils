@@ -60,8 +60,11 @@ for i in "${@}"; do
 			echo "  ${yellow}${i}${reset} is ${blue}zero-length${reset}";
 		fi
 		if [ "${debug}" == 'yes' ]; then
-			echo "  ${green}debug mode: ${red}remove ${i}${reset}";
+			printf '%s\n' "  ${green}debug mode: ${red}remove ${bold}${white}${i}${reset} ";
 		else
+			if [ "${verbose}" == 'yes' ]; then
+				printf '%s\n' "  ${red}Deleting ${bold}${white}${i}${reset} ";
+			fi
 			rm -f "${i}";
 		fi
 	else
@@ -72,7 +75,7 @@ for i in "${@}"; do
 			# print amplitude
 			if [ "${print}" == 'yes' ]; then
 				amp="${reset}Max amplitude: ${red}${amplitude}${reset}";
-				printf ' %*.*s%s\n' 0 $(( ${cols} - ${#i} - ${#amp} - 2 + ${#reset} * 5 )) "${lblack}${pad}${reset}" " ${reset}${amp}";
+				printf ' %*.*s %s\n' 0 $(( ${cols} - ${#i} - ${#amp} - 2 + ${#reset} * 5 )) "${lblack}${pad}${reset}" "${amp}";
 			fi
 			if [ "${debug}" == 'yes' ]; then
 				# debug mode
@@ -83,7 +86,9 @@ for i in "${@}"; do
 				echo "'${i}'";
 			else
 				if [ "${verbose}" == 'yes' ]; then
-					echo "  ${red}Deleting ${bold}${white}${i}${reset}";
+					printf '%s' "  ${red}Deleting ${bold}${white}${i}${reset} ";
+					printf '%s\n' "[${yellow} $(du -h "${i}" | cut -f1) ${reset}]";
+					# echo "  ${red}Deleting ${bold}${white}${i}${reset}";
 				fi
 				rm -f "${i}";
 			fi
