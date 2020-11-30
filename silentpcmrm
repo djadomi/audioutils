@@ -9,6 +9,10 @@
 #	-t THRESHOLD	set the threshold below which a PCM file is considered silent
 #	INPUT	list of files to check for silence
 
+if ! command -v sox &> /dev/null; then
+	echo "sox could not be found, and is required";
+	exit;
+fi
 cols=$(tput cols)
 threshold=0.0001;
 while getopts ":dlnt:v" opt; do
